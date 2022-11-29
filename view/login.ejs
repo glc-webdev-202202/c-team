@@ -1,0 +1,28 @@
+<%- include('head', { title: 'Authentication Example' }) -%>
+
+<h1>로그인</h1>
+<%- message %>
+<a href="/restricted">로그인 확인</a><br>
+<% if(!loggedin){ %>
+use "tj" and "foobar"
+<form method="post" action="/login">
+  <p>
+    <label for="username">Username:</label>
+    <input type="text" name="username" id="username">
+  </p>
+  <p>
+    <label for="password">Password:</label>
+    <input type="text" name="password" id="password">
+  </p>
+  <p>
+    <input type="submit" value="Login">
+    <button type="submit"><a href="/register">회원가입</a></button>
+  </p>
+</form>
+
+<%} else {%>
+<a href="/logout">로그아웃</a>
+<a href="/bbs">게시판</a>
+<%} %>
+
+<%- include('foot') -%>

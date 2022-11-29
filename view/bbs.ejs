@@ -1,0 +1,18 @@
+<%- include('head', { title: 'BBS Example' }) -%>
+
+<h1>게시판</h1>
+<% for(var article of list){ %>
+    <b><%= article.title %></b> <%= article.contents %> <i><%= article.name %></i><br>
+<% } %>
+
+<form action="/write" method="POST">
+    <input type="text" name = "title">
+    <input type="text" name = "contents">
+    <button type="submit">submit</button>
+</form>
+
+<a href="/myBbs">내 글</a>
+<a href="/">처음으로</a>
+<a href="/logout">로그아웃</a>
+
+<%- include('foot') -%>

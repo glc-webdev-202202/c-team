@@ -1,0 +1,20 @@
+<%- include('head', { title: 'Register' }) -%>
+
+<h1>회원가입</h1>
+<%- message %>
+<a href="/restricted">로그인 확인</a><br>
+<form method="post" action="/register">
+    <p>
+      <label for="newusername">Enter Username:</label>
+      <input type="text" name="newusername" id="newusername">
+    </p>
+    <p>
+      <label for="newpassword">Enter Password:</label>
+      <input type="text" name="newpassword" id="newpassword">
+    </p>
+    <p>
+      <input type="submit" value="Submit">
+    </p>
+</form>
+
+<%- include('foot') -%>
