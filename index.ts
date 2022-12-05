@@ -66,54 +66,6 @@ class ForumRepository {
     }
 }
 
-// const bbs: Article[] = [
-//     { name: 'tj', title: 'hello', contents: 'nice to meet you' },
-//     { name: 'bj', title: 'I\'m new here', contents: 'yoroshiku' },
-//     { name: 'tj', title: 'here again!', contents: 'anybody here?' },
-//     { name: 'ts', title: 'rich people', contents: 'money ain\'t an issue' },
-// ];
-
-// function listBbs(req: Request, res: Response, next: NextFunction): void {
-//     try {
-//         res.render('bbs', { list: bbs });
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-
-// function writeBbs(req: Request, res: Response, next: NextFunction) {
-//     try {
-//         if (!req.session.user) {
-//             res.redirect("login");
-//         } else {
-//             bbs.push({ name: req.session.user.name, title: req.body.title, contents: req.body.contents })
-//             res.redirect("/bbs")
-//         }
-//     }
-//     catch (error) {
-//         next(error);
-//     }
-// }
-
-// function sortBbs(req: Request, res: Response, next: NextFunction) {
-
-//     // var myPosts =  bbs.filter(function(Post) {
-//     //     return post.name == req.session.user?.name;
-//     // });
-    
-//     try {
-//         if (!req.session.user) {
-//             res.redirect("login");
-//         } else {
-//             bbs.filter()
-//             res.redirect("/bbs")
-//         }
-//     }
-//     catch (error) {
-//         next(error);
-//     }
-// }
-
 class User {
     public name: string;
 
@@ -244,17 +196,6 @@ class AuthController {
                 res.redirect('/');
             }
        
-            // await this.authService.authenticate(req.body.username, req.body.password, (user) => {
-            //     if (user === req.body.newusername) {
-            //         req.session.error = '이미 있는 계정입니다.';
-            //         res.redirect('/');
-            //     } else {
-            //         this.authService.authRepository.users.push({name: req.body.newusername, password: req.body.newpassword});
-            //         res.render('register', {message: '회원가입 성공.'});
-            //         res.redirect('/');
-            //     }
-            // });
-
         } catch (error) {
             next(error);
         }
