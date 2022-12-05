@@ -1,10 +1,10 @@
 body {
     padding: 50px;
     font: 13px Helvetica, Arial, sans-serif;
-  }
-  .error {
-      color: red
-  }
-  .success {
-      color: green;
-  }
+}
+.error {
+    color: red
+}
+.success {
+    color: green;
+}
