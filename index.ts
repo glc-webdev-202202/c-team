@@ -245,15 +245,9 @@ class App {
         this.app.post('/login', this.authController.logIn);
         this.app.get('/restricted', this.authController.restricted);
         this.app.get('/logout', this.authController.logOut);
-
-        // this.app.get('/bbs', listBbs);
-        // this.app.post('/write', writeBbs);
-        // this.app.get('/sort', sortBbs)
-
         this.app.get('/bbs', this.authController.forumRepository.listBbs);
         this.app.post('/write', this.authController.forumRepository.writeBbs);
         this.app.get('/myBbs', this.authController.forumRepository.myBbs);
-
         this.app.get('/register', this.authController.register);
         this.app.post('/register', this.authController.addnewuser);
     }
