@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import session from "express-session";
 import path from "path";
+import { sqlite3 } from "sqlite3";
 
 class Article {
     public name: string;
