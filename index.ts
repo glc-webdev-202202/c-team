@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import session from "express-session";
 import path from "path";
+import { sqlite3 } from "sqlite3";
 
 class Article {
     public name: string;
@@ -25,7 +26,7 @@ class ForumRepository {
 
     public listBbs = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            res.render('bbs', { list: this.bbs });
+            res.render('bbs', { list: this.bbs ,loggedin: req.session.user});
         } catch (error) {
             next(error);
         }
@@ -65,54 +66,6 @@ class ForumRepository {
         }
     }
 }
-
-// const bbs: Article[] = [
-//     { name: 'tj', title: 'hello', contents: 'nice to meet you' },
-//     { name: 'bj', title: 'I\'m new here', contents: 'yoroshiku' },
-//     { name: 'tj', title: 'here again!', contents: 'anybody here?' },
-//     { name: 'ts', title: 'rich people', contents: 'money ain\'t an issue' },
-// ];
-
-// function listBbs(req: Request, res: Response, next: NextFunction): void {
-//     try {
-//         res.render('bbs', { list: bbs });
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-
-// function writeBbs(req: Request, res: Response, next: NextFunction) {
-//     try {
-//         if (!req.session.user) {
-//             res.redirect("login");
-//         } else {
-//             bbs.push({ name: req.session.user.name, title: req.body.title, contents: req.body.contents })
-//             res.redirect("/bbs")
-//         }
-//     }
-//     catch (error) {
-//         next(error);
-//     }
-// }
-
-// function sortBbs(req: Request, res: Response, next: NextFunction) {
-
-//     // var myPosts =  bbs.filter(function(Post) {
-//     //     return post.name == req.session.user?.name;
-//     // });
-    
-//     try {
-//         if (!req.session.user) {
-//             res.redirect("login");
-//         } else {
-//             bbs.filter()
-//             res.redirect("/bbs")
-//         }
-//     }
-//     catch (error) {
-//         next(error);
-//     }
-// }
 
 class User {
     public name: string;
@@ -166,7 +119,7 @@ class AuthController {
 
     public index = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            res.redirect('/login');
+            res.render('main', { loggedin: req.session.user }); //main.ejs 메인(홈 화면) 접속
         } catch (error) {
             next(error);
         }
@@ -187,7 +140,7 @@ class AuthController {
                     req.session.regenerate(function () {
                         req.session.user = user;
                         req.session.success = 'username: ' + user.name;
-                        res.redirect('back');
+                        res.redirect('/');
                     });
                 } else {
                     req.session.error = '비밀번호가 틀렸습니다. '
@@ -244,22 +197,17 @@ class AuthController {
                 res.redirect('/');
             }
        
-            // await this.authService.authenticate(req.body.username, req.body.password, (user) => {
-            //     if (user === req.body.newusername) {
-            //         req.session.error = '이미 있는 계정입니다.';
-            //         res.redirect('/');
-            //     } else {
-            //         this.authService.authRepository.users.push({name: req.body.newusername, password: req.body.newpassword});
-            //         res.render('register', {message: '회원가입 성공.'});
-            //         res.redirect('/');
-            //     }
-            // });
-
         } catch (error) {
             next(error);
         }
     };
-
+    public diary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            res.render('diary');
+        } catch (error) {
+            next(error);
+        }
+    };
 
 }
 
@@ -304,17 +252,12 @@ class App {
         this.app.post('/login', this.authController.logIn);
         this.app.get('/restricted', this.authController.restricted);
         this.app.get('/logout', this.authController.logOut);
-
-        // this.app.get('/bbs', listBbs);
-        // this.app.post('/write', writeBbs);
-        // this.app.get('/sort', sortBbs)
-
         this.app.get('/bbs', this.authController.forumRepository.listBbs);
         this.app.post('/write', this.authController.forumRepository.writeBbs);
         this.app.get('/myBbs', this.authController.forumRepository.myBbs);
-
         this.app.get('/register', this.authController.register);
         this.app.post('/register', this.authController.addnewuser);
+        this.app.get('/diary', this.authController.diary); //일기장 화면 
     }
 }
 

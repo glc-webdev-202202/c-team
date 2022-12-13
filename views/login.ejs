@@ -1,0 +1,69 @@
+
+<%- include('head', { title: 'Authentication Example' }) -%>
+<%- include('header') -%>
+<!--
+<h1>로그인</h1>
+<%- message %>
+<a href="/restricted">로그인 확인</a><br>
+<% if(!loggedin){ %>
+use "tj" and "foobar"
+<form method="post" action="/login">
+  <p>
+    <label for="username">Username:</label>
+    <input type="text" name="username" id="username">
+  </p>
+  <p>
+    <label for="password">Password:</label>
+    <input type="text" name="password" id="password">
+  </p>
+  <p>
+    <input type="submit" value="Login">
+    <button type="submit"><a href="/register">회원가입</a></button>
+  </p>
+</form>
+
+<%} else {%>
+<a href="/logout">로그아웃</a>
+<a href="/bbs">게시판</a>
+<%} %>
+-->
+
+  <main class="form-signin w-100 m-auto">
+      <form method="post" action="/login">
+
+        <h1 class="h3 mb-3 fw-normal">Log in</h1>
+    
+        <div class="form-floating">
+          <input type="text" class="form-control" id="username" name="username">
+          <label for="username">Username</label>
+        </div>
+        <div class="form-floating">
+          <input type="password" class="form-control" id="password" name="password">
+          <label for="password">Password</label>
+        </div>
+    
+        <div class="checkbox mb-3">
+          <label>
+            <input type="checkbox" value="remember-me"> Remember me
+          </label>
+        </div>
+        <button class="w-100 btn btn-lg btn-primary" type="submit" value="Login">Log in</button>
+        
+      </form>
+      <p>아직 계정이 없으신가요? <a href="/register">가입</a></p>
+    </main>
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+      <p class="col-md-4 mb-0 text-muted">&copy; 2022 Web Programming Group C</p>
+  
+      <a href="/" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+        <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
+      </a>
+  
+      <ul class="nav col-md-4 justify-content-end">
+        <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
+      
+      </ul>
+    </footer>
+    
+</div>
+<%- include('foot') -%>
