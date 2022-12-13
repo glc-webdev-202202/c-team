@@ -1,24 +1,24 @@
 const sqlite3 = require("sqlite3").verbose();
 
-const db = new sqlite3.Database("./user.db", sqlite3, (err) => {
+const db = new sqlite3.Database("./stock.db", sqlite3, (err) => {
     if (err) return console.error(err.message);
 
     console.log("connection succesful");
 });
 
 db.serialize(() => {
-    db.run('CREATE TABLE users (first_name TEXT,last_name TEXT, username TEXT, password INT, email TEXT, id INT )');
-    const sql = `INSERT INTO users (first_name,last_name, username, password, email, id) VALUES(?,?,?,?,?,?)`;
+    db.run('CREATE TABLE stock (stock_code TEXT,stock_name TEXT, stock_price INT, stock_ud TEXT )');
+    const sql = `INSERT INTO stock (stock_code, stock_name, stock_price, stock_ud) VALUES(?,?,?,?)`;
     db.run(
         sql,
-        ["YS","CHO","CHOYS","123","cho@gmail.com",1],
+        ["005930","삼성전자","58900원","-0.51%"],
         (err)=> {
             if (err) return console.error(err.message);
             console.log("A new row has been created");
         });
 
-    db.each("SELECT username AS id,password FROM users", (err, row) => {
-        console.log(row.id + ": " + row.password);});
+    db.each("SELECT stock_name AS name,stock_price AS price FROM stock", (err, row) => {
+        console.log(row.name + ": " + row.price);});
 
     db.close((err) => {
         if (err) return console.error(err.message);
