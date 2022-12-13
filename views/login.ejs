@@ -1,5 +1,6 @@
 
 <%- include('head', { title: 'Authentication Example' }) -%>
+<%- include('header') -%>
 <!--
 <h1>로그인</h1>
 <%- message %>
@@ -27,25 +28,6 @@ use "tj" and "foobar"
 <%} %>
 -->
 
-<div class="container">
-  <header class="d-flex flex-wrap   justify-content-md-between py-3 mb-4 border-bottom">
-    <a href="/" class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none">
-      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-c-circle-fill" viewBox="0 0 16 16">
-        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM8.146 4.992c.961 0 1.641.633 1.729 1.512h1.295v-.088c-.094-1.518-1.348-2.572-3.03-2.572-2.068 0-3.269 1.377-3.269 3.638v1.073c0 2.267 1.178 3.603 3.27 3.603 1.675 0 2.93-1.02 3.029-2.467v-.093H9.875c-.088.832-.75 1.418-1.729 1.418-1.224 0-1.927-.891-1.927-2.461v-1.06c0-1.583.715-2.503 1.927-2.503Z"/>
-      </svg>
-     
-    </a>
-
-    <ul class="nav">
-      <li><a href="#" class="nav-link px-2 link-secondary">게시판</a></li>
-      <li><a href="#" class="nav-link px-2 link-dark">일기장</a></li>  
-    </ul>
-
-    <div class="col-md-3 text-end">
-      <button type="button" class="btn btn-outline-primary me-2">Login</button>
-      <button type="button" class="btn btn-primary">Sign-up</button>
-    </div>
-  </header>
   <main class="form-signin w-100 m-auto">
       <form method="post" action="/login">
 
@@ -53,7 +35,7 @@ use "tj" and "foobar"
     
         <div class="form-floating">
           <input type="text" class="form-control" id="username" name="username">
-          <label for="username">ID</label>
+          <label for="username">Username</label>
         </div>
         <div class="form-floating">
           <input type="password" class="form-control" id="password" name="password">
@@ -78,7 +60,7 @@ use "tj" and "foobar"
       </a>
   
       <ul class="nav col-md-4 justify-content-end">
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Home</a></li>
+        <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
       
       </ul>
     </footer>

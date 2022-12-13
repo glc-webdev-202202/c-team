@@ -1,19 +1,32 @@
 <%- include('head', { title: 'BBS Example' }) -%>
+<%- include('header') -%>
+    <main class="form-signin w-100 m-auto">
+    <h1 class="h3 mb-3 fw-normal">게시판</h1>
+    <% for(var article of list){ %>
+        <b><%= article.title %></b> <%= article.contents %> <i><%= article.name %></i><br>
+    <% } %>
 
-<h1>게시판</h1>
-<% for(var article of list){ %>
-    <b><%= article.title %></b> <%= article.contents %> <i><%= article.name %></i><br>
-<% } %>
+    <form action="/write" method="POST">
+        <input type="text" name = "title">
+        <input type="text" name = "contents">
+        <button type="submit">submit</button>
+    </form>
 
-<form action="/write" method="POST">
-    <input type="text" name = "title">
-    <input type="text" name = "contents">
-    <button type="submit">submit</button>
-</form>
+    <a href="/myBbs">내 글</a>
+    <a href="/">처음으로</a>
+    <a href="/logout">로그아웃</a>
+    </main>
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+        <p class="col-md-4 mb-0 text-muted">&copy; 2022 Web Programming Group C</p>
 
-<a href="/myBbs">내 글</a>
-<a href="/">처음으로</a>
-<a href="/logout">로그아웃</a>
-
+        <ul class="nav col-md-4 justify-content-end">
+            <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
+        <% if (loggedin) { %>
+            <li class="nav-item"><a href="/logout" class="nav-link px-2 text-muted">Logout</a></li>
+        <% } %>
+        </ul>
+    </footer>
+  
+</div>
 <%- include('foot') -%>
 

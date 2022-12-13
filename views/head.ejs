@@ -11,6 +11,9 @@
     integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <title><%= title %></title>
     <style>
+      main {
+        height: 500px;
+      }
       html,
       body {
         height: 100%;
@@ -35,14 +38,32 @@
 
       .form-signin input[type="text"] {
         margin-bottom: -1px;
-        border-bottom-right-radius: 0;
-        border-bottom-left-radius: 0;
+        
       }
 
       .form-signin input[type="password"] {
         margin-bottom: 10px;
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
+       
+      }
+      .btn {
+        text-decoration: none;
+        }
+      .btn-primary a{
+        color: #f5f5f5;
+      }
+       
+      .form-floating  ul{ 
+        display: flex;
+         
+      }
+      .form-floating li{
+        list-style: none;
+        padding-right: 10px;
+        border-bottom: 1px solid #000000;  
+      }
+      .form-floating  a {
+        text-decoration: none;
+        color: black;
       }
       </style>
 

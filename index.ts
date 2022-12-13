@@ -26,7 +26,7 @@ class ForumRepository {
 
     public listBbs = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            res.render('bbs', { list: this.bbs });
+            res.render('bbs', { list: this.bbs ,loggedin: req.session.user});
         } catch (error) {
             next(error);
         }
@@ -119,7 +119,7 @@ class AuthController {
 
     public index = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            res.redirect('/login');
+            res.render('main', { loggedin: req.session.user }); //main.ejs 메인(홈 화면) 접속
         } catch (error) {
             next(error);
         }
@@ -140,7 +140,7 @@ class AuthController {
                     req.session.regenerate(function () {
                         req.session.user = user;
                         req.session.success = 'username: ' + user.name;
-                        res.redirect('back');
+                        res.redirect('/');
                     });
                 } else {
                     req.session.error = '비밀번호가 틀렸습니다. '
@@ -201,7 +201,13 @@ class AuthController {
             next(error);
         }
     };
-
+    public diary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            res.render('diary');
+        } catch (error) {
+            next(error);
+        }
+    };
 
 }
 
@@ -251,6 +257,7 @@ class App {
         this.app.get('/myBbs', this.authController.forumRepository.myBbs);
         this.app.get('/register', this.authController.register);
         this.app.post('/register', this.authController.addnewuser);
+        this.app.get('/diary', this.authController.diary); //일기장 화면 
     }
 }
 
