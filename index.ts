@@ -209,6 +209,13 @@ class AuthController {
             next(error);
         }
     };
+    public diaryCalender = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            res.render('diaryCalender', { loggedin: req.session.user });
+        } catch (error) {
+            next(error);
+        }
+    };
 
 }
 
@@ -258,7 +265,8 @@ class App {
         this.app.get('/myBbs', this.authController.forumRepository.myBbs);
         this.app.get('/register', this.authController.register);
         this.app.post('/register', this.authController.addnewuser);
-        this.app.get('/diary', this.authController.diary); //일기장 화면 
+        this.app.get('/diary', this.authController.diary); //일기장 로그인 화면
+        this.app.get('/diaryCalender', this.authController.diaryCalender) //일기장 쓰는 페이지 가져오기
     }
 }
 
