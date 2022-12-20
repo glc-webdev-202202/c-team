@@ -1,7 +1,7 @@
-<%- include('head', { title: 'BBS Example' }) -%>
-<%- include('header') -%>
+<%- include("head", { title: "BBS Example" }) -%>
+<%- include("header") -%>
     <main class="form-signin w-100 m-auto">
-    <h1 class="h3 mb-3 fw-normal">게시판</h1>
+    <h1 class="h3 mb-3 fw-normal"> 게시판</h1> // can't finish '게시판' in jslint
     <% for(var article of list){ %>
         <b><%= article.title %></b> <%= article.contents %> <i><%= article.name %></i><br>
     <% } %>
@@ -26,7 +26,6 @@
         <% } %>
         </ul>
     </footer>
-  
 </div>
 <%- include('foot') -%>
 
