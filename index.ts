@@ -81,6 +81,17 @@ class AuthRepository {
             }
         })
     }
+
+    //Add new user
+    public addnewuser(id: string, pw: string, fn: (user: User | null) => void){
+        this.authDatabase.db.run(`INSERT INTO user (id, pw) VALUES ("${id}", "${pw}"`, (err: any) => {
+            if (err){
+                fn(null);
+            } else {
+                fn({"id": id, "pw": pw});
+            }
+        })
+    }
 }
 
 class AuthService {
@@ -97,29 +108,15 @@ class AuthService {
 
 class ForumRepository {
     public authDatabase = new AuthDatabase();
-
+    
     public listBbs(callback:any){
         this.authDatabase.db.all("SELECT * FROM article", function(err:any, row:any){
             callback(row);
         });
     }
 
-    // public writeBbs = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
-    //     try {
-    //         if (!req.session.user) {
-    //             res.redirect("login");
-    //         } else {
-    //             this.bbs.push({ name: req.session.user.name, title: req.body.title, contents: req.body.contents })
-    //             res.redirect("/bbs")
-    //         }
-    //     }
-    //     catch (error) {
-    //         next(error);
-    //     }
-    // }
-
     //Same function as writeBbs | Adds new bbs to table
-    public addBbs2Db(title: string, contents: string, fn: (article: Article | null) => void){
+    public addBbs(title: string, contents: string, fn: (article: Article | null) => void){
         this.authDatabase.db.run(`INSERT INTO article (title, contents) VALUES ("${title}", "${contents}")`, (err: any) => {
             if (err){
                 fn(null);
@@ -129,26 +126,13 @@ class ForumRepository {
         })
     }
 
-    
-    // public getMyBbs(name:string): Article[] {
-    //     return this.bbs.filter((article:Article) => article.name == name);
-    // }
+    public listmyBbs(callback:any){
 
+    }
 
-    // public async myBbs(req: Request, res: Response, next: NextFunction) {
-    //     try {
-    //         if (!req.session.user){
-    //             res.redirect("login");
-    //         } else {
-    //             res.render('mybbs', {
-    //                 list: this.getMyBbs,
-    //                 loggedin: req.session.user
-    //             }); 
-    //         }
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // }
+    public myBbs(){
+
+    }
 }
 
 declare module 'express-session' {
@@ -160,10 +144,11 @@ declare module 'express-session' {
 }
 
 class AuthController {
-    public authDatabase = new AuthDatabase();
     public authService = new AuthService();
     public forumRepository = new ForumRepository();
+    public authRepository = new AuthRepository();
 
+    //시작 페이지 Render
     public index = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             res.render('main', { loggedin: req.session.user }); //main.ejs 메인(홈 화면) 접속
@@ -184,7 +169,6 @@ class AuthController {
     };
 
     //Login existing User
-
     public logIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => { 
         try {
             await this.authService.authenticate(req.body.id, req.body.pw, function (user) {
@@ -219,11 +203,7 @@ class AuthController {
         try {
             if (req.session.user) {
                 res.render("restricted");
-            } else {
-                req.session.error = '접근 금지!';
-                res.redirect('/');
-            }
-
+            } 
         } catch (error) {
             next(error);
         }
@@ -238,16 +218,29 @@ class AuthController {
         }
     };
 
-    //Add new user
-
-    public addnewuser(req: Request, res: Response, next: NextFunction, id: string, pw: string, fn: (user: User | null) => void){
-        this.authDatabase.db.run(`INSERT INTO user (id, pw) VALUES ("${id}", "${pw}"`, (err: any) => {
-            if (err){
-                fn(null);
-            } else {
-                fn({"id": id, "pw": pw});
-            }
-        })
+    public registerUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const {id, pw} = req.body; 
+            this.authRepository.findUser(id, (user) => {
+                if (user){
+                    req.session.error = 'Username already taken';
+                    res.redirect('/register');
+                } else {
+                    this.authRepository.addnewuser(id, pw, (user) => {
+                        if (user){
+                            req.session.user = user;
+                            req.session.success = 'Welcome new user, ' + user.id + '. Please login.';
+                            res.redirect('/login');
+                        } else {
+                            req.session.error = 'Registration failed';
+                            res.redirect('/register');
+                        }
+                    });
+                }
+            });
+        } catch (error) {
+            next(error);
+        }
     }
 
     //Diary 관련 기능
@@ -297,17 +290,19 @@ class App {
     }
 
     private initializeRoutes() {
-        this.app.get('/', this.authController.index);
-        this.app.get('/login', this.authController.signUp);
-        this.app.post('/login', this.authController.logIn);
-        this.app.get('/restricted', this.authController.restricted);
-        this.app.get('/logout', this.authController.logOut);
-        this.app.get('/bbs', this.authController.forumRepository.listBbs);
-        // this.app.post('/write', this.authController.forumRepository.writeBbs);
-        // this.app.get('/myBbs', this.authController.forumRepository.myBbs);
-        this.app.get('/register', this.authController.register);
-        // this.app.post('/register', this.authController.addnewuser);
+
+        //get
+        this.app.get('/', this.authController.index); //메인 화면
+        this.app.get('/login', this.authController.signUp); //로그인 화면
+        this.app.get('/restricted', this.authController.restricted); //접근금지 화면
+        this.app.get('/logout', this.authController.logOut); //로그아웃 화면
+        this.app.get('/bbs', this.authController.forumRepository.listBbs); //게시판 화면 + 게시물
+        this.app.get('/register', this.authController.register); //회원가입 화면
         this.app.get('/diary', this.authController.diary); //일기장 화면 
+
+        //post
+        this.app.post('/login', this.authController.logIn);
+        this.app.post('/register', this.authController.registerUser);
     }
 }
 
