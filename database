@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS user (
+    id VARCHAR(16) PRIMARY KEY,
+    pw TEXT NOT NULL
+)
+
+CREATE TABLE IF NOT EXISTS article (
+      articleid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      title TEXT,
+      contents TEXT
+)
+
+CREATE TABLE IF NOT EXISTS diary (
+    d_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    d_pw INTEGER NOT NULL,
+    d_title TEXT,
+    d_contents TEXT
+)
