@@ -14,17 +14,6 @@ class User {
     }
 }
 
-// class User {
-//     public name: string;
-
-//     public password: string;
-
-//     public constructor(name: string, password: string) {
-//         this.name = name;
-//         this.password = password;
-//     }
-// }
-
 class Article {
     public title: string;
     public contents: string;
@@ -35,18 +24,6 @@ class Article {
     }
 }
 
-// class Article {
-//     public name: string;
-
-//     public title: string;
-//     public contents: string;
-
-//     public constructor(name: string, title: string, contents: string) {
-//         this.name = name;
-//         this.title = title;
-//         this.contents = contents;
-//     }
-// }
 
 class Diary {
     public d_id: number;
@@ -63,24 +40,25 @@ class Diary {
 }
 
 class AuthDatabase {
+    //opens and read database file
     public db = new sqlite.Database('database.db', sqlite.OPEN_READWRITE, (err: any) => {
         if (err) {
-          //console.error(err.message);
           console.log("Error Occurred - " + err.message);
         }
     });
 
-    // public article = new db.Database('article.db', db.OPEN_READWRITE, (err: any) => {
-    //     if (err) {
-    //       console.error(err.message);
-    //     }
-    // });
-
-    // public diary = new db.Database('diary.db', db.OPEN_READWRITE, (err: any) => {
-    //     if (err) {
-    //       console.error(err.message);
-    //     }
-    // });
+    // create User Schema in DB
+    public createUserTable(): void {
+        this.db.run("CREATE TABLE IF NOT EXISTS user(id varchar(16) PRIMARY KEY, pw TEXT NOT NULL)")
+    }
+    // create Article Schema in DB
+    public createArticleTable(): void {
+        this.db.run("CREATE TABLE IF NOT EXISTS article(articleid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title TEXT, contents TEXT)");
+    }
+    // create Diary Schema in DB
+    public createDiaryTable(): void {
+        this.db.run("CREATE TABLE IF NOT EXISTS diary(d_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, d_pw INTEGER NOT NULL, d_title TEXT, d_contents TEXT)")
+    }
 
     constructor(){
         this.createUserTable();
@@ -88,37 +66,12 @@ class AuthDatabase {
         this.createDiaryTable();
     }
 
-    public createUserTable(): void {
-        this.db.run("CREATE TABLE IF NOT EXISTS user(id varchar(16) PRIMARY KEY, pw TEXT NOT NULL)")
-    }
-
-    public createArticleTable(): void {
-        this.db.run("CREATE TABLE IF NOT EXISTS article(articleid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title TEXT, contents TEXT)");
-    }
-
-    public createDiaryTable(): void {
-        this.db.run("CREATE TABLE IF NOT EXISTS diary(d_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, d_pw INTEGER NOT NULL, d_title TEXT, d_contents TEXT)")
-    }
-
 }
 
 class AuthRepository {
     public authDatabase = new AuthDatabase();
 
-    // public users: User[] = [
-    //     { name: 'tj', password: 'foobar' },
-    //     { name: 'bj', password: 'pass' },
-    //     { name: 'kj', password: 'word' },
-    //     { name: 'ts', password: 'ts' },
-    //     { name: 'tl', password: 'tl' },
-    // ];
-
-    // public findUser(name: string): User | null {
-    //     var user = this.users.find(user => user.name === name);
-    //     if (!user) return null;
-    //     else return user;
-    // }
-
+    //select id tuple from user table
     public findUser(id: string, fn:(user: User | null) => void){
         this.authDatabase.db.get(`SELECT id, pw FROM user WHERE id="${id}"`, (err: any, row: any) => {
             if (!row){
@@ -133,13 +86,6 @@ class AuthRepository {
 class AuthService {
     public authRepository = new AuthRepository();
 
-    // public async authenticate(name: string, pass: string, fn: (user: User | null) => void) {
-    //     var user = this.authRepository.findUser(name);
-    //     if (!user) return fn(null);
-    //     if (pass === user.password) return fn(user);
-    //     fn(null);
-    // }
-
     public async authenticate(id: string, pw: string, fn: (user: User | null) => void){
         this.authRepository.findUser(id, (user) =>{
             if (!user) return fn(null);
@@ -151,21 +97,6 @@ class AuthService {
 
 class ForumRepository {
     public authDatabase = new AuthDatabase();
-
-    // private bbs: Article[] = [
-    //     { name: 'tj', title: 'hello', contents: 'nice to meet you' },
-    //     { name: 'bj', title: 'I\'m new here', contents: 'yoroshiku' },
-    //     { name: 'tj', title: 'here again!', contents: 'anybody here?' },
-    //     { name: 'ts', title: 'rich people', contents: 'money ain\'t an issue' },
-    // ];
-
-    // public listBbs = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
-    //     try {
-    //         res.render('bbs', { list: this.bbs ,loggedin: req.session.user});
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // }
 
     public listBbs(callback:any){
         this.authDatabase.db.all("SELECT * FROM article", function(err:any, row:any){
@@ -187,6 +118,7 @@ class ForumRepository {
     //     }
     // }
 
+    //Same function as writeBbs | Adds new bbs to table
     public addBbs2Db(title: string, contents: string, fn: (article: Article | null) => void){
         this.authDatabase.db.run(`INSERT INTO article (title, contents) VALUES ("${title}", "${contents}")`, (err: any) => {
             if (err){
@@ -252,25 +184,6 @@ class AuthController {
     };
 
     //Login existing User
-    // public logIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    //     try {
-    //         await this.authService.authenticate(req.body.username, req.body.password, function (user) {
-    //             if (user) {
-    //                 req.session.regenerate(function () {
-    //                     req.session.user = user;
-    //                     req.session.success = 'username: ' + user.name;
-    //                     res.redirect('/');
-    //                 });
-    //             } else {
-    //                 req.session.error = '비밀번호가 틀렸습니다. '
-    //                     + ' (use "tj" and "foobar")';
-    //                 res.redirect('/');
-    //             }
-    //         });
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // };
 
     public logIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => { 
         try {
@@ -326,23 +239,6 @@ class AuthController {
     };
 
     //Add new user
-    // public addnewuser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        
-    //     try {
-
-    //         if (User.name === req.body.newusername) {
-    //             req.session.error = '이미 있는 계정입니다.';
-    //             res.redirect('/');
-    //         } else {
-    //             this.authService.authRepository.users.push({name: req.body.newusername, password: req.body.newpassword});
-    //             res.render('register', {message: '회원가입 성공.'});
-    //             res.redirect('/');
-    //         }
-       
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // };
 
     public addnewuser(req: Request, res: Response, next: NextFunction, id: string, pw: string, fn: (user: User | null) => void){
         this.authDatabase.db.run(`INSERT INTO user (id, pw) VALUES ("${id}", "${pw}"`, (err: any) => {
