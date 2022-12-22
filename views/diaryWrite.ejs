@@ -2,40 +2,44 @@
 
 <%- include("head", { title: "Authentication Example" }) -%>
 <%- include("header") -%>
-<style>
-  .emotion {
-    margin-top: 50px;
-  }
-  .emotionList {
-    display: flex;
-  }
-  ul {
-    display: flex;
-  }
-  li {
-    list-style: none;
-    padding: 10px;
-  }
-  .contents-container {
-    display: flex;
-    align-content: center;
-    
-    height: 500px;
-  }
-  .contents-right {
-    width: 50%;  
-  }
-  .contents-left {
-    width: 50%; 
-  }
-  h4{
-    width: 50px;
-  }
-</style>
+  <style>
+    .emotion {
+      margin-top: 50px;
+    }
+    .emotionList {
+      display: flex;
+    }
+    ul {
+      display: flex;
+    }
+    li {
+      list-style: none;
+      padding: 10px;
+    }
+    .contents-container {
+      display: flex;
+      align-content: center;
+      
+      height: 500px;
+    }
+    .contents-right {
+      width: 50%;  
+    }
+    .contents-left {
+      width: 50%; 
+    }
+    h4{
+      width: 50px;
+    }
+  </style>
     <main>
       <form action="post" action="">
         <div class="contents-container">
           <div class="contents-left">
+            <div class="d_pw">
+              <h1 class="h3 mb-3 fw-normal">비밀번호(4자리)</h1>
+              <input type="text" id="d_pw" name="d_pw">
+            </div>
             <div class="calender">
               <h1 class="h3 mb-3 fw-normal">달력</h1>
               <input  type="text" id="datepicker">
@@ -127,9 +131,9 @@
 
   <ul class="nav col-md-4 justify-content-end">
       <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
-  <% if (loggedin) { %>
-      <li class="nav-item"><a href="/logout" class="nav-link px-2 text-muted">Logout</a></li>
-  <% } %>
+      <% if (loggedin) { %>
+        <li class="nav-item"><a href="/logout" class="nav-link px-2 text-muted">Logout</a></li>
+      <% } %>
   </ul>
 </footer>
 

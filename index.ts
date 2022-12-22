@@ -26,13 +26,11 @@ class Article {
 
 
 class Diary {
-    public d_id: number;
     public d_pw: number;
     public d_title: string;
     public d_contents: string;
 
-    public constructor(d_id: number, d_pw: number, d_title: string, d_contents: string) {
-        this.d_id = d_id;
+    public constructor(d_pw: number, d_title: string, d_contents: string) {
         this.d_pw = d_pw;
         this.d_title = d_title;
         this.d_contents = d_contents;
@@ -106,6 +104,23 @@ class AuthRepository {
 
     public listmyBbs(callback:any){
 
+    }
+
+    public addDiary(d_pw: number, d_title: string, d_contents: string, fn:(diary: Diary | null) => void ) {
+        this.db.run(`INSERT INTO diary (d_pw, d_title, d_contents) VALUES ("${d_pw}", "${d_title}", "${d_contents}")`, (err: any) => {
+            if (err){
+                fn(null);
+            } else {
+                fn({"d_pw": d_pw, "d_title": d_title, "d_contents": d_contents});
+
+            }
+        })
+    }
+
+    public myDiary(callback:any) {
+        this.db.all("SELECT * FROM diary", function(err:any, row:any){
+            callback(row)
+        });
     }
 }
 
@@ -251,9 +266,15 @@ class AuthController {
 
     public listBbs = async(req: Request, res: Response, next: NextFunction): Promise<void> => {  
         try {
-            this.authService.authRepository.getBbs(function(result:any){
-                res.render('bbs', {loggedin: req.session.user, article: result});
-            });
+            if (req.session.user){
+                this.authService.authRepository.getBbs(function(result:any){
+                    res.render('bbs', {loggedin: req.session.user, article: result});
+                });
+            } else {
+                req.session.error = '접근 금지';
+                res.redirect('/restricted');
+            }
+
         } catch (error) {
             next(error);
         }
@@ -262,10 +283,14 @@ class AuthController {
     //Diary 관련 기능
     public diary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            res.render('diary');
+            res.render('diary', {loggedin: req.session.user});
         } catch (error) {
             next(error);
         }
+    };
+
+    public diaryCheck = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        
     };
 
 }
