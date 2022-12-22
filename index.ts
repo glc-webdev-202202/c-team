@@ -98,12 +98,14 @@ class AuthRepository {
         })
     }
 
-    public myBbs(){
+    // public myBbs(){
 
-    }
+    // }
 
-    public listmyBbs(callback:any){
-
+    public listmyBbs(id: string, callback:any){
+        this.db.all('SELECT title, content FROM article WHERE id in (SELECT id FROM article WHERE id="${id}")', function(err:any, row:any){
+            callback(row);
+        });
     }
 
     public addDiary(d_pw: number, d_title: string, d_contents: string, fn:(diary: Diary | null) => void ) {
@@ -278,6 +280,20 @@ class AuthController {
         } catch (error) {
             next(error);
         }
+    }
+    public mylistBbs = async(req: Request, res: Response, next: NextFunction): Promise<void> => {  
+            try {
+                if (req.session.user){
+                    this.authService.authRepository.listmyBbs(req.session.user.id, function(result:any){
+                        res.render('myBbs', {loggedin: req.session.user, articles:result});
+                    });
+                } else{
+                    req.session.error = 'PLease Login';
+                    res.redirect('/login');
+                }
+            } catch (error) {
+                next(error);
+            }
     };
 
     //Diary 관련 기능
@@ -340,6 +356,7 @@ class App {
         this.app.get('/register', this.authController.register); //회원가입 화면
 
         this.app.get('/bbs', this.authController.listBbs); //bbs 화면 + 모든 글
+        this.app.get('/myBbs', this.authController.mylistBbs); //myBbs 화면 + 내 글
         this.app.get('/diary', this.authController.diary); //일기장 화면 
 
         //post
