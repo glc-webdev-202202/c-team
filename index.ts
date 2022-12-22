@@ -39,41 +39,31 @@ class Diary {
     }
 }
 
-class AuthDatabase {
+class AuthRepository {
+
     //opens and read database file
     public db = new sqlite.Database('database.db', sqlite.OPEN_READWRITE, (err: any) => {
         if (err) {
-          console.log("Error Occurred - " + err.message);
+            console.log("Error Occurred - " + err.message);
         }
     });
 
-    // create User Schema in DB
-    public createUserTable(): void {
-        this.db.run("CREATE TABLE IF NOT EXISTS user(id varchar(16) PRIMARY KEY, pw TEXT NOT NULL)")
-    }
-    // create Article Schema in DB
-    public createArticleTable(): void {
-        this.db.run("CREATE TABLE IF NOT EXISTS article(articleid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title TEXT, contents TEXT)");
-    }
-    // create Diary Schema in DB
-    public createDiaryTable(): void {
-        this.db.run("CREATE TABLE IF NOT EXISTS diary(d_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, d_pw INTEGER NOT NULL, d_title TEXT, d_contents TEXT)")
+    // create User,Article,Diary Schema in DB
+    public createTable(): void {
+        this.db.serialize(() => {
+            this.db.run("CREATE TABLE IF NOT EXISTS user(id varchar(16) PRIMARY KEY, pw TEXT NOT NULL)")
+            this.db.run("CREATE TABLE IF NOT EXISTS article(articleid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title TEXT, contents TEXT)");
+            this.db.run("CREATE TABLE IF NOT EXISTS diary(d_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, d_pw INTEGER NOT NULL, d_title TEXT, d_contents TEXT)")
+        })
     }
 
     constructor(){
-        this.createUserTable();
-        this.createArticleTable();
-        this.createDiaryTable();
+        this.createTable();
     }
-
-}
-
-class AuthRepository {
-    public authDatabase = new AuthDatabase();
 
     //select id tuple from user table
     public findUser(id: string, fn:(user: User | null) => void){
-        this.authDatabase.db.get(`SELECT id, pw FROM user WHERE id="${id}"`, (err: any, row: any) => {
+        this.db.get(`SELECT id, pw FROM user WHERE id="${id}"`, (err: any, row: any) => {
             if (!row){
                 fn(null);
             } else {
@@ -84,13 +74,38 @@ class AuthRepository {
 
     //Add new user
     public addnewuser(id: string, pw: string, fn: (user: User | null) => void){
-        this.authDatabase.db.run(`INSERT INTO user (id, pw) VALUES ("${id}", "${pw}"`, (err: any) => {
+        this.db.run(`INSERT INTO user (id, pw) VALUES ("${id}", "${pw}"`, (err: any) => {
             if (err){
                 fn(null);
             } else {
                 fn({"id": id, "pw": pw});
             }
         })
+    }
+
+    public getBbs(callback:any){
+        this.db.all("SELECT * FROM article", function(err:any, row:any){
+            callback(row);
+        });
+    }
+
+    //Same function as writeBbs | Adds new bbs to table
+    public addBbs(title: string, contents: string, fn: (article: Article | null) => void){
+        this.db.run(`INSERT INTO article (title, contents) VALUES ("${title}", "${contents}")`, (err: any) => {
+            if (err){
+                fn(null);
+            } else {
+                fn({"title": title, "contents": contents});
+            }
+        })
+    }
+
+    public myBbs(){
+
+    }
+
+    public listmyBbs(callback:any){
+
     }
 }
 
@@ -106,35 +121,6 @@ class AuthService {
     }
 }
 
-class ForumRepository {
-    public authDatabase = new AuthDatabase();
-    
-    public listBbs(callback:any){
-        this.authDatabase.db.all("SELECT * FROM article", function(err:any, row:any){
-            callback(row);
-        });
-    }
-
-    //Same function as writeBbs | Adds new bbs to table
-    public addBbs(title: string, contents: string, fn: (article: Article | null) => void){
-        this.authDatabase.db.run(`INSERT INTO article (title, contents) VALUES ("${title}", "${contents}")`, (err: any) => {
-            if (err){
-                fn(null);
-            } else {
-                fn({"title": title, "contents": contents});
-            }
-        })
-    }
-
-    public listmyBbs(callback:any){
-
-    }
-
-    public myBbs(){
-
-    }
-}
-
 declare module 'express-session' {
     interface SessionData {
         user: User;
@@ -145,7 +131,6 @@ declare module 'express-session' {
 
 class AuthController {
     public authService = new AuthService();
-    public forumRepository = new ForumRepository();
     public authRepository = new AuthRepository();
 
     //시작 페이지 Render
@@ -241,7 +226,38 @@ class AuthController {
         } catch (error) {
             next(error);
         }
+
     }
+
+    public postBbs = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const {title, contents} = req.body;
+            if (req.session.user){
+                this.authRepository.addBbs(title, contents, (article) => {
+                    if (article){
+                        res.redirect('/bbs');
+                    } else {
+                        res.redirect('/bbs');
+                    }
+                });
+            } else {
+                req.session.error = '접근 금지';
+                res.redirect('/login');
+            }
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    public listBbs = async(req: Request, res: Response, next: NextFunction): Promise<void> => {  
+        try {
+            this.authService.authRepository.getBbs(function(result:any){
+                res.render('bbs', {loggedin: req.session.user, article: result});
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
 
     //Diary 관련 기능
     public diary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -294,15 +310,17 @@ class App {
         //get
         this.app.get('/', this.authController.index); //메인 화면
         this.app.get('/login', this.authController.signUp); //로그인 화면
-        this.app.get('/restricted', this.authController.restricted); //접근금지 화면
         this.app.get('/logout', this.authController.logOut); //로그아웃 화면
-        this.app.get('/bbs', this.authController.forumRepository.listBbs); //게시판 화면 + 게시물
+        this.app.get('/restricted', this.authController.restricted); //접근금지 화면
         this.app.get('/register', this.authController.register); //회원가입 화면
+
+        this.app.get('/bbs', this.authController.listBbs); //bbs 화면 + 모든 글
         this.app.get('/diary', this.authController.diary); //일기장 화면 
 
         //post
-        this.app.post('/login', this.authController.logIn);
-        this.app.post('/register', this.authController.registerUser);
+        this.app.post('/login', this.authController.logIn); // 
+        this.app.post('/register', this.authController.registerUser); //회원가입 사용자 추가
+        this.app.post('/postBbs', this.authController.postBbs); //게시판에 글 추가
     }
 }
 

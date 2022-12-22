@@ -1,20 +1,35 @@
 <%- include("head", { title: "BBS Example" }) -%>
 <%- include("header") -%>
     <main class="form-signin w-100 m-auto">
-    <h1 class="h3 mb-3 fw-normal"> 게시판</h1> <!--can't finish '게시판' in jslint-->
-    <% for(var article of list){ %>
-        <b><%= article.title %></b> <%= article.contents %> <i><%= article.name %></i><br>
-    <% } %>
+    <h1 class="h3 mb-3 fw-normal">게시판</h1> <!--can't finish '게시판' in jslint-->
 
-    <form action="/write" method="POST">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Title</th>
+                <th>Content</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for(const bbs of article){ %> <!-- [const name].[*DATABASE COLUMN NAME*, not the name in index.ts] -->
+            <tr>
+                <td><%= bbs.articleid %></td>
+                <td><%= bbs.title %></td>
+                <td><%= bbs.contents %></td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+
+    <form action="/postBbs" method="POST">
+        <p>Title</p>
         <input type="text" name = "title">
+        <p>Contents</p>
         <input type="text" name = "contents">
         <button type="submit" class="btn btn-primary">submit</button>
     </form>
 
-    <a href="/myBbs">내 글</a>
-    <a href="/">처음으로</a>
-    <a href="/logout">로그아웃</a>
     </main>
     <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
         <p class="col-md-4 mb-0 text-muted">&copy; 2022 Web Programming Group C</p>
