@@ -72,7 +72,7 @@ class AuthRepository {
 
     //Add new user
     public addnewuser(id: string, pw: string, fn: (user: User | null) => void){
-        this.db.run(`INSERT INTO user (id, pw) VALUES ("${id}", "${pw}"`, (err: any) => {
+        this.db.run(`INSERT INTO user (id, pw) VALUES ("${id}", "${pw}")`, (err: any) => {
             if (err){
                 fn(null);
             } else {
@@ -306,7 +306,11 @@ class AuthController {
     };
 
     public diaryCheck = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        
+        try {
+
+        } catch (error) {
+            next(error);
+        }
     };
 
 }
