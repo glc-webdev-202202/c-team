@@ -307,6 +307,14 @@ class AuthController {
         }
     };
 
+    public diarywrite = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            res.render('diaryWrite', {loggedin: req.session.user});
+        } catch (error) {
+            next(error);
+        }
+    };
+
     public mydiaries = async(req: Request, res: Response, next: NextFunction): Promise<void> => {  
         try {
             if (req.session.user){
@@ -401,6 +409,7 @@ class App {
         this.app.get('/myBbs', this.authController.mylistBbs); //myBbs 화면 + 내 글
 
         this.app.get('/diarylist', this.authController.mydiaries); //일기장 화면 + 내 일기
+        this.app.get('/diarywrite', this.authController.diarywrite); //일기장 쓰는 화면
 
 
         //post
