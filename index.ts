@@ -124,6 +124,8 @@ class AuthRepository {
             callback(row)
         });
     }
+
+
 }
 
 class AuthService {
@@ -297,9 +299,24 @@ class AuthController {
     };
 
     //Diary 관련 기능
-    public diary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    public diarylist = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            res.render("diary", {loggedin: req.session.user});
+            res.render('diarylist', {loggedin: req.session.user});
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    public mydiaries = async(req: Request, res: Response, next: NextFunction): Promise<void> => {  
+        try {
+            if (req.session.user){
+                this.authService.authRepository.myDiary(function(result:any){
+                    res.render('diarylist', {loggedin: req.session.user, diary:result});
+                });
+            } else{
+                req.session.error = 'PLease Login';
+                res.redirect('/login');
+            }
         } catch (error) {
             next(error);
         }
@@ -312,6 +329,27 @@ class AuthController {
             next(error);
         }
     };
+
+    // public writeDiary = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    //     try {
+    //         const {pw, title, contents} = req.body;
+    //         if (req.session.user){
+    //             this.authRepository.addDiary(d_pw, d_title, d_contents, (diary) => {
+    //                 if (diary){
+    //                     res.redirect('/diarylist');
+    //                 } else {
+    //                     res.redirect('/diarylist');
+    //                 }
+    //             });
+    //         } else {
+    //             req.session.error = '접근 금지';
+    //             res.redirect('/login');
+    //         }
+    //     } catch (error) {
+    //         next(error);
+    //     }
+    // }
+    
 
 }
 
@@ -359,14 +397,17 @@ class App {
         this.app.get("/restricted", this.authController.restricted); //접근금지 화면
         this.app.get("/register", this.authController.register); //회원가입 화면
 
-        this.app.get("/bbs", this.authController.listBbs); //bbs 화면 + 모든 글
-        this.app.get("/myBbs", this.authController.mylistBbs); //myBbs 화면 + 내 글
-        this.app.get("/diary", this.authController.diary); //일기장 화면
+        this.app.get('/bbs', this.authController.listBbs); //bbs 화면 + 모든 글
+        this.app.get('/myBbs', this.authController.mylistBbs); //myBbs 화면 + 내 글
+
+        this.app.get('/diarylist', this.authController.mydiaries); //일기장 화면 + 내 일기
+
 
         //post
-        this.app.post("/login", this.authController.logIn);
-        this.app.post("/register", this.authController.registerUser); //회원가입 사용자 추가
-        this.app.post("/postBbs", this.authController.postBbs); //게시판에 글 추가
+        this.app.post('/login', this.authController.logIn); // 
+        this.app.post('/register', this.authController.registerUser); //회원가입 사용자 추가
+        this.app.post('/postBbs', this.authController.postBbs); //게시판에 글 추가
+
     }
 }
 
